@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:contactbook_app/bloc_logic/contacts_bloc.dart';
 import 'package:contactbook_app/coloursandtheme/colourstheme.dart';
 import 'package:contacts_service/contacts_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class pageTwo extends StatefulWidget {
@@ -72,145 +74,137 @@ class _pageTwoState extends State<pageTwo> {
                 offset: Offset(1, 3),
               ),
             ],
-            color: Colors.blue
-                .shade50, // Example color, replace with AppColors.primaryColor if defined
+            color: Colors.blue.shade50,
+            // Example color, replace with AppColors.primaryColor if defined
             borderRadius: BorderRadius.circular(25), // Add rounded corners
           ),
           child: Stack(
             children: [
               Form(
                 key: _formKey,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 6,
-                    ),
-                    CircleAvatar(
-                      child: Image.asset(
-                        'assets/iconimage/boyimg.png',
-                        fit: BoxFit.cover,
-                        height: 150,
-                        width: 150,
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 6,
                       ),
-                      radius: 70,
-                    ),
-                    SizedBox(
-                      height: 40,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'First Name',
-                        contentPadding: EdgeInsets.all(6),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                      CircleAvatar(
+                        child: Image.asset(
+                          'assets/iconimage/boyimg.png',
+                          fit: BoxFit.cover,
+                          height: 150,
+                          width: 150,
                         ),
+                        radius: 85,
                       ),
-                      onSaved: (value) {
-                        _firstName = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter first name';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(
-                      height: 6,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Last Name',
-                        contentPadding: EdgeInsets.all(6),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'First Name',
+                          contentPadding: EdgeInsets.all(6),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                         ),
+                        onSaved: (value) {
+                          _firstName = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter first name';
+                          }
+                          return null;
+                        },
                       ),
-                      onSaved: (value) {
-                        _lastName = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          value = " ";
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(
-                      height: 6,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        contentPadding: EdgeInsets.all(6),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                      SizedBox(
+                        height: 6,
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Last Name',
+                          contentPadding: EdgeInsets.all(6),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                         ),
+                        onSaved: (value) {
+                          _lastName = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Empty last name';
+                          }
+                          return null;
+                        },
                       ),
-                      keyboardType: TextInputType.phone,
-                      onSaved: (value) {
-                        _phoneNumber = value;
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter the number';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    ElevatedButton(
-                      onPressed: _saveContacts,
-                      child: Text(
-                        'Save',
-                        style: GoogleFonts.playfairDisplay(
+                      SizedBox(
+                        height: 6,
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          contentPadding: EdgeInsets.all(6),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        keyboardType: TextInputType.phone,
+                        onSaved: (value) {
+                          _phoneNumber = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            _formKey.currentState?.save();
+                            Contact newContact = Contact(
+                              givenName: _firstName,
+                              familyName: _lastName,
+                              phones: [
+                                Item(label: 'mobile', value: _phoneNumber)
+                              ],
+                            );
+                            context
+                                .read<ContactsBloc>()
+                                .add(SaveContacts(newContact));
+                            Navigator.pop(context, true);
+                          }
+                        },
+                        child: Text(
+                          'Save',
+                          style: GoogleFonts.playfairDisplay(
+                            textStyle: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonColor,
+                          elevation: 3,
                           textStyle: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        elevation: 3,
-                        textStyle: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
           )),
     );
-  }
-
-  //Saving the contact
-  void _saveContacts() {
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
-
-      //Create a new contact
-      Contact newContact = Contact(
-        givenName: _firstName,
-        familyName: _lastName,
-        phones: [Item(label: 'mobile', value: _phoneNumber)],
-      );
-
-      //saving the contacts (Here we are using contacts service package)
-      ContactsService.addContact(newContact);
-
-      //Show a success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sucessfully Saved')),
-      );
-
-      //going back to the previous screen
-      Navigator.pop(context, true);
-    }
   }
 }
