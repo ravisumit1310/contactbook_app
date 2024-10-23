@@ -1,6 +1,6 @@
 # contactbook_app
 
-A new Flutter project. using State-Management.
+A new Flutter project. using Bloc State-Management.
 
 ## Getting Started
 
